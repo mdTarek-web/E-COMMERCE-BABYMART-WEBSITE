@@ -1,9 +1,23 @@
+import { Navigate, Outlet } from "react-router"
+import Header from "./components/common/Header";
+import Sidebar from "./components/dashboard/Sidebar";
+import { cn } from "./lib/utils";
 
 function App() {
+  const isAuthenticated = false;
 
+  if(!isAuthenticated){
+    return <Navigate to={"/login"}/>
+  }
   return (
-   <div className="p-10">
-    <h2>Baby Mart Admin Portal</h2>
+   <div className="h-screen flex bg-background">
+    <Sidebar/>
+    <div className={cn("flex flex-col flex-1 max-w-[--breakpoint-2xl] hoverEffect ml-64")}>
+      <Header/>
+      <main>
+        <Outlet/>
+      </main>
+    </div>
    </div>
   )
 }
