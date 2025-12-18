@@ -1,3 +1,4 @@
+import { api } from '@/lib/api';
 import { create } from 'zustand'
 import { persist } from "zustand/middleware";
 
@@ -29,12 +30,41 @@ const useAuthStore=create<AuthState>()(persist((set, get)=>
     user:null,
     token: null,
     isAuthenticated: false,
-    login: async (credentials) => {},
-    register: async (userData) => {
-        
+    login: async (credentials) => {
+        try {
+            const response = await api.post("/auth/login",credentials);
+            if(response.data.token){
+                set({
+                    user: response.data,
+                    token: response.data.token,
+                    isAuthenticated: true,
+                })
+            }
+        } catch (error) {
+            console.error("Login error:",error);
+            throw error;
+        }
     },
-    logout: () => {},
-    checkIsAdmin: () => {},
+    register: async (userData) => {
+        try {
+            await api.post("/auth/register", userData)
+        } catch (error) {
+            console.error("Registration error:",error);
+            throw error;
+        }
+    },
+    logout: () => {
+        set({
+            user: null,
+            token: null,
+            isAuthenticated: false,
+        })
+    },
+    checkIsAdmin: () => {
+        const { user } = get();
+        return user?.role === "admin";
+    },
 }),{
     name: "auth-Storage",
-}))
+}));
+export default useAuthStore;
